@@ -1,9 +1,13 @@
+# Large files
+sep_*_brt4.rds
+
 # History files
 .Rhistory
 .Rapp.history
 
 # Session Data files
 .RData
+.DS_Store
 
 # User-specific files
 .Ruserdata

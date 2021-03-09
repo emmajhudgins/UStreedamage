@@ -1,0 +1,31 @@
+Warning messages:
+1: In optim(par = c(2), fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+2: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+3: In optim(par = c(2), fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+4: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+5: In optim(par = c(2), fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+6: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+7: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+8: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+9: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+10: In optim(par = m3$par, fn = LLfit, control = list(trace = 100, maxit = 1000)) :
+  one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly

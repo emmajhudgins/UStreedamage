@@ -5,7 +5,7 @@ In this paper, we estimate the number of additional urban trees expected to die 
 
 Urban trees are expected to be the target of the greatest economic impacts of forest pests, but previous impact estimates were at the country-level, and therefore lacked the necessary pest, tree, and spatiotemporal resolution to allow targeted management. In this study, we synthesized urban tree distributional models across 30,000 US communities with spread predictions for 57 pest species and host-specific estimates of tree death due to pest exposure. 
 
-We estimated that an additional (i.e., above background mortality) 4.2 million street trees will die due to pests from 2020 to 2050, along with 249 million community trees and 46 million residential trees. Predicted annualized costs to remove pest-killed trees are roughly $US 150M, while total urban pest costs could be an order of magnitude larger (~$4.8B). We expect that over 95% of damages will be caused by emerald ash borer (EAB) killing ash trees, and find a highly unequal community-level impact distribution, where <20% of all urban centres are predicted to bear roughly 90% of all impacts. Further, we define a high-impact zone spanning 555,000km2, made up of ~5000 communities including Minneapolis-St. Paul, Milwaukee WI and Indianapolis, IN, within which we predict >99% mortality of preferred hosts, and >50% mortality of all street trees.   
+We estimated that an additional (i.e., above background mortality) 2.2 million street trees will die due to pests from 2020 to 2050, along with 249 million community trees and 46 million residential trees. 
 
 Additionally, we used this framework to identify a set of risk factors for future high impact urban forest pests, where we predict the highest risk due to a novel wood borer of maple or oak entering via a port in the southern US. 
 
@@ -14,24 +14,34 @@ The predicted tree mortality in each US community due to each pest is available 
 Read this file into R using <i>readRDS().</i>
 
 
-*Scripts*
-1. 'small_tree_models.R'- fits small genus-level urban tree distributional models
-2. 'medlarge_parallel.R' - fits medium and large genus-level urban tree distributional models
-3. 'ch4_clean.R' - synthesizes four model predictions into tree mortality and cost estimates by community
-4. 'totaltree_clean.R' - fits total tree models for small, medium and large urban trees
-5. 'treemod_funcs.R' - common functions used across tree models
-6. 'beta_mort.stan' - STAN model for host mortality
-7. 'lhc_stan_beta.R' - R script calling STAN model and saving output
+##Scripts
+
+###Scripts using private data (private_treedata_code subfolder)
+1. '01_totaltree_genusspecific_models.R'- fits total abundance and genus-specific abundance models for small, medium and large street trees
+2. '02_extrapolate_models.R' - predicts genus-specific tree abundance in all US communities using the models fit in the previous scripts
+3. '03_nonstreet_tree_models.R' - script used to calculate trees across all land use types using a smaller dataset for whole-community trees, which follows a same model selection approach to 01-02 (see MS), and get combined with street trees in synthesis'
+3. 'totaltree_clean.R' - helper script to fits total tree models for small, medium and large street trees for use in script 01.
+4. 'treemod_funcs.R' - helper functions used to assist in fitting street tree models
 
 
-*Derived data*
+###Scripts using public data
+1.'010_beta_mortality_stan.R' - R script calling STAN model (./stan/beta_mort.stan) and saving output using latin hypercube sampling to show theoretical validity, and then fitting to pest severity data
+2. '02*_ files.R' - forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data.
+3. '030_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041)
+4. '040_model_synthesis.R' - synthesizes four model predictions into tree mortality and cost estimates by community
+	'041_eachcommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario
+	'042_plotting.R' - reproduces important plots from the manuscript
+
+
+
+
+##Derived data
 1. 'presences_time_noforce3.csv' - pest spread forecasts from Hudgins et al. (2020) Ecol. App.
-2. 'datanorm,csv' - pest data from Hudgins et al. 2017;2019
-3. 'grid_*.csv' - predicted trees in each grid cell, for street, residential (res), and non-residential (com) trees
-4. 'mostlikely_*.csv' - predicted mortality (or cost) for each tree/grid cell/pest combination
-5. 'citydetails.rds' - details for all US communities by PLACEFIPS code (i column matches to grid cells via ID column match in 'grid_*.csv' files
-6. 'completepredictionset.rds' - predicted trees of 3 size classes of each genus, plus # expected to die due to each pest, in each community by PLACEFIPS code.please email me if you wish to get a csv copy of this file.
-7. 'hostgen_*.rds' - predicted asymptotice mortality for each pest/host combination
+2. 'datanorm.csv' - pest data from Hudgins et al. 2017;2019
+3. 'grid_*.csv' - predicted trees in each grid cell, for street, residential (res), and non-residential (com) trees of each size class 
+4. 'mortality_*.csv' - predicted mortality for each tree/grid cell/pest combination for each lag or the 
+6. 'completepredictionset.rds' - predicted trees of 3 size classes of each genus, plus # expected to die due to each pest, in each community by PLACEFIPS code. Please email me if you are looking for a csv copy of this file.
+7. 'hostgen_*.rds' - predicted asymptotic mortality for each pest/host combination
 
 For any questions or issues, feel free to open an issue or email me at emma.hudgins@mail.mcgill.ca
 
