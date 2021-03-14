@@ -9,9 +9,9 @@ We estimated that an additional (i.e., above background mortality) 2.2 million s
 
 Additionally, we used this framework to identify a set of risk factors for future high impact urban forest pests, where we predict the highest risk due to a novel wood borer of maple or oak entering via a port in the southern US. 
 
-The predicted tree mortality in each US community due to each pest is available in "complete_predictor_set.RDS"
+The predicted tree mortality/cost in each US community by tree genus is available in  "mortgrid.RDS/costgrid.RDS". For more finescale predictions, email emma.hudgins@mail.mcgill.ca
 
-Read this file into R using <i>readRDS().</i>
+Read .RDS files into R using <i>readRDS().</i>
 
 
 ##Scripts
@@ -43,7 +43,7 @@ Read this file into R using <i>readRDS().</i>
 6. 'completepredictionset.rds' - predicted trees of 3 size classes of each genus, plus # expected to die due to each pest, in each community by PLACEFIPS code. Please email me if you are looking for a csv copy of this file.
 7. 'hostgen_*.rds' - predicted asymptotic mortality for each pest/host combination
 
-For any questions or issues, feel free to open an issue or email me at emma.hudgins@mail.mcgill.ca
+For any questions or suspected bugs, feel free to open an issue or email me at emma.hudgins@mail.mcgill.ca
 
 
 
