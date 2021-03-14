@@ -18,7 +18,7 @@ inv_dat<-read.csv('./data/inv_dat_complete.csv') # pest severity data from
 allprop<-read.csv('./data/all_prop_mostdat.csv') # proportions of tree species by genus
 codematch<-read.csv('./data/fia_newcodes.csv') # PLANTS codes conversion to FIA codes
 severity<-read.csv('./data/each_spp_pesthost.csv') # severity data from Potter et al. 2019 supplement
-hostspp<-read.csv("~/Desktop/OneDrive - McGill University/Grad/scripts/FIA_spp_sepcols_2019.csv", stringsAsFactors = F) # host tree codes by pest
+hostspp<-read.csv("./data/FIA_spp_sepcols_2019.csv", stringsAsFactors = F) # host tree codes by pest
 
 
 ###determine whether each tree species is a host for each pest (data from Laura Blackburn use in Hudgins et al. 2017;2020)

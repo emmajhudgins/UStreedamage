@@ -1,15 +1,24 @@
 require(here)
 library(reshape2)
 setwd(here())
-genus<-readRDS('./data/genera.RDS')
+genus<-readRDS('./data/genera.RDS') # host tree genera
+#pest data
+data2<-read.csv('./data/datanorm.csv', stringsAsFactors = FALSE)
+data2<-data2[-c(25,69),]
+data2<-data2[-4,]
 #row indices for pest guilds (pathogens removed)
+
 def<-which(data2$Guild=="Defoliators") 
 bore<-which(data2$Guild=="Borers")
 suck<-which(data2$Guild=="Suckers")
 bestguess_genus<-readRDS('./output/mean_mort.RDS')[,c(def,bore,suck),]
 bestguess_cost_genus<-readRDS('./output/by_site_st_costs.RDS')[,c(def,bore,suck),]
 #pred_trees_huge<-readRDS('./output/pred_trees_huge_public.RDS') #private data removed so results will be dissimilar to MS
-pred_trees_huge<-readRDS('~/Desktop/OneDrive - McGill University/Grad/scripts/pred_trees_huge.RDS') #private data removed so results will be dissimilar to MS
+pred_trees_huge<-readRDS('./outputpred_trees_huge_public.RDS') #private data removed so results will be dissimilar to MS
+prop_areas_places<-read.csv('./data/prop_place_area_2019.csv')#community information with regards to 50x50km grid
+
+# 50x50km grid spatial information
+grid<-read.csv('./data/countydatanorm_march.csv')
 
 costgrid<-data.frame()
 mortgrid<-data.frame()
@@ -23,9 +32,9 @@ for (i in 1:3372)
     if(nrow(sub_trees)>0){
       prop_expanded<-sub_places$propreal3[match(sub_trees$PLACEFIPS, sub_places$PLACEFIPS)]
       sub_trees[,13:15]<-sub_trees[,13:15]*prop_expanded
-      sub_trees_mort<-cbind(sub_trees$PLACEFIPS,data.frame((prop_expanded*do.call("rbind", replicate(n=length(prop_expanded)/48,t(bestguess_genus[i,,]), simplify=F))),genus=genus))
+      sub_trees_mort<-cbind(sub_trees$PLACEFIPS,data.frame(prop_expanded*rep(colSums(bestguess_genus[i,,]),length(prop_expanded)/48),genus=genus))
       prop_city=1
-      sub_trees_cost<-cbind(sub_trees$PLACEFIPS,data.frame((prop_expanded*do.call("rbind", replicate(n=length(prop_expanded)/48,t(bestguess_cost_genus[i,,]), simplify=F))),genus=genus))
+      sub_trees_cost<-cbind(sub_trees$PLACEFIPS,data.frame(prop_expanded*rep(colSums(bestguess_cost_genus[i,,],length(prop_expanded)/48)),genus=genus))
       if (nrow(sub_places)>1 & nrow(sub_trees)>0)
       {
         prop_city<-tapply(rowSums(sub_trees[,13:15]), sub_trees$PLACEFIPS, sum)/sum(sub_trees[,13:15])

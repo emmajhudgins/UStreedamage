@@ -34,8 +34,9 @@ def<-which(data2$Guild=="Defoliators")
 bore<-which(data2$Guild=="Borers")
 suck<-which(data2$Guild=="Suckers")
 
-# predicted small, medium, large trees  by grid cell across 3 land uses
+# 50x50km grid spatial information
 grid<-read.csv('./data/countydatanorm_march.csv')
+
 #outputs of treegrid script, trees in each cell of each genus across land uses
 grid_small<-readRDS('./output/grid_small.rds') 
 grid_med<-readRDS('./output/grid_med.rds')
@@ -52,9 +53,9 @@ new_presences<-readRDS('./output/new_presences.RDS')
 cumulative_newpest<-readRDS('./output/presences_time_newpest.rds')
 ####3.0 CODE SWITCHES######
 
-estimate_mort=T #Should tree mortality be estimated or loaded?
-bg=F # should most likely scenario or specific mortality debt (lag2) scenario be used?
-lag2=10 # fixed mortality debt (only relevant when bg==F)
+estimate_mort=F #Should tree mortality be estimated or loaded?
+bg=T # should most likely scenario or specific mortality debt (lag2) scenario be used?
+lag2=100 # fixed mortality debt (only relevant when bg==F)
 newpest=F # forecasting exposure for a hypothetically newly established invader
 
 ####3.1 lags and discounting ####
@@ -72,6 +73,15 @@ for (i in 1:10)
 {
   ave_discount[i]<-mean(discounter[((i-1)*5):(i*5)])
 }
+
+#tree removal and replacement costs after accounting for inflation since Aukema et al. 2011
+small_st_treat<-450*(117.244/103.157)
+med_st_treat<-600*(117.244/103.157)
+large_st_treat<-1200*(117.244/103.157)
+
+small_res_treat<-600*(117.244/103.157)
+med_res_treat<-800*(117.244/103.157)
+large_res_treat<-1500*(117.244/103.157)
 
 if (newpest==F)
 {
@@ -163,7 +173,9 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       host_gen_large2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
       host_gen_large2[which(host_sharing==1&host_gen_large2==0)]<-mort2[2]
       host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
-      
+      exposure_st<-his_t+him_t+hil_t
+      exposure_res<-hris_t+hrim_t+hril_t
+      exposure_com<-hcis_t+hcim_t+hcil_t
       mean_mort<-(apply(sweep(his_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(him_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hil_t,2:3, host_gen_large2, "*"),1:3,sum))
       mean_com_mort<-(apply(sweep(hcis_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(hcim_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hcil_t,2:3, host_gen_large2, "*"),1:3,sum))
       mean_res_mort<-(apply(sweep(hris_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(hrim_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hril_t,2:3, host_gen_large2, "*"),1:3,sum))
@@ -172,21 +184,11 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       saveRDS(mean_res_mort, './output/mean_res_mort.RDS')
       
       ###5 Cost conversion ####
-      
-      #tree removal and replacement costs after accounting for inflation since Aukema et al. 2011
-      small_st_treat<-450*(117.244/103.157)
-      med_st_treat<-600*(117.244/103.157)
-      large_st_treat<-1200*(117.244/103.157)
-      
-      small_res_treat<-600*(117.244/103.157)
-      med_res_treat<-800*(117.244/103.157)
-      large_res_treat<-1500*(117.244/103.157)
+    
       
       by_site_st_costs<-apply(sweep(sweep(his,2:3, host_gen_small2, "*"),2,small_st_treat,"*"),1:3,sum)+apply(sweep(sweep(him,2:3, host_gen_med2, "*"),2,med_st_treat,"*"),1:3,sum)+apply(sweep(sweep(hil,2:3, host_gen_large2, "*"),2,large_st_treat,"*"),1:3,sum)
       
-      temporal_costs<-apply(sweep(sweep(host_infestation_small[,,,4:10],2:3, host_gen_small2, "*"),2,small_st_treat,"*"),4,sum)+apply(sweep(sweep(host_infestation_med[,,,4:10],2:3, host_gen_med2, "*"),2,med_st_treat,"*"),4,sum)+apply(sweep(sweep(host_infestation_large[,,,4:10],2:3, host_gen_large2, "*"),2,large_st_treat,"*"),4,sum)
-      saveRDS(by_site_st_costs, './output/by_site_st_costs.RDS')
-      saveRDS(temporal_costs, paste0('./output/temporal_costs_',length,'.RDS'))
+         saveRDS(by_site_st_costs, './output/by_site_st_costs.RDS')
     }
     
     
@@ -216,31 +218,31 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
     hril_t<-apply(host_res_infestation_large[,,,4:10],2:3,FUN=sum)
     
     
-    
+
     by_pest_st_costs<-by_pest_com_costs<-by_pest_res_costs<-matrix(0, 10000,72)
     by_pest_treemort<-by_pest_com_treemort<-by_pest_res_treemort<-matrix(0, 10000,72)
-    
+
     for (i in 1:10000)
     {
       mort2<-mort[i,2:8]
-      
+
       host_gen_small2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
       host_gen_small2[which(host_sharing==1&host_gen_small2==0)]<-mort2[2]
       host_gen_small2<-matrix(unlist(host_gen_small2), nrow=72, ncol=48)
-     
+
        host_gen_med2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
       host_gen_med2[which(host_sharing==1&host_gen_med2==0)]<-mort2[2]
       host_gen_med2<-matrix(unlist(host_gen_med2), nrow=72, ncol=48)
-      
-      
+
+
       host_gen_large2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
       host_gen_large2[which(host_sharing==1&host_gen_large2==0)]<-mort2[2]
       host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
-      
+
       by_pest_st_costs[i,]<-apply(his*host_gen_small2,1, sum)*small_st_treat+apply(him*host_gen_med2,1, sum)*med_st_treat+apply(hil*host_gen_large2,1, sum)*large_st_treat
        by_pest_com_costs[i,]<-apply(hcis*host_gen_small2,1, sum)*small_st_treat+apply(hcim*host_gen_med2,1, sum)*med_st_treat+apply(hcil*host_gen_large2,1, sum)*large_st_treat
        by_pest_res_costs[i,]<-apply(hris*host_gen_small2,1, sum)*small_res_treat+apply(hrim*host_gen_med2,1, sum)*med_res_treat+apply(hril*host_gen_large2,1, sum)*large_res_treat
-      
+
       by_pest_treemort[i,]<-apply(his_t*host_gen_small2,1, sum)+apply(him_t*host_gen_med2,1, sum)+apply(hil_t*host_gen_large2,1, sum)
        by_pest_com_treemort[i,]<-apply(hcis_t*host_gen_small2,1, sum)+apply(hcim_t*host_gen_med2,1, sum)+apply(hcil_t*host_gen_large2,1, sum)
       by_pest_res_treemort[i,]<-apply(hris_t*host_gen_small2,1, sum)+apply(hrim_t*host_gen_med2,1, sum)+apply(hril_t*host_gen_large2,1, sum)
@@ -249,52 +251,73 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
     sc<-0.02*(apply(by_pest_st_costs[,c(def,suck,bore)],1,sum))/(1-(1+0.02)^-30)
     rc<-0.02*(apply(by_pest_res_costs[,c(def,suck,bore)],1,sum))/(1-(1+0.02)^-30)
     cc<-0.02*(apply(by_pest_com_costs[,c(def,suck,bore)],1,sum))/(1-(1+0.02)^-30)
-    
+
     quantile(sc,0.025)
     quantile(sc,0.975)
     mean(sc)
-    
+
     quantile(rc,0.025)
     quantile(rc,0.975)
     mean(rc)
-    
+
     quantile(cc,0.025)
     quantile(cc,0.975)
     mean(cc)
-    
-    #street tree losses 
+
+    #street tree losses
     quantile(rowSums(by_pest_treemort[,c(def,suck,bore)]),0.025)
     quantile(rowSums(by_pest_treemort[,c(def,suck,bore)]),0.975)
     mean(rowSums(by_pest_treemort[,c(def,suck,bore)]))
-    
+
     quantile(rowSums(by_pest_com_treemort[,c(def,suck,bore)]),0.025)
     quantile(rowSums(by_pest_com_treemort[,c(def,suck,bore)]),0.975)
     mean(rowSums(by_pest_com_treemort[,c(def,suck,bore)]))
-    
+
     quantile(rowSums(by_pest_res_treemort[,c(def,suck,bore)]),0.025)
-    quantile(rowSums(by_pest_res_treemort[,c(def,suck,bore)]),0.975) 
+    quantile(rowSums(by_pest_res_treemort[,c(def,suck,bore)]),0.975)
     mean(rowSums(by_pest_res_treemort[,c(def,suck,bore)]))
+
+    mort2<-colMeans(mort)[2:8]
+    
+    host_gen_small2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
+    host_gen_small2[which(host_sharing==1&host_gen_small2==0)]<-mort2[2]
+    host_gen_small2<-matrix(unlist(host_gen_small2), nrow=72, ncol=48)
+    
+    host_gen_med2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
+    host_gen_med2[which(host_sharing==1&host_gen_med2==0)]<-mort2[2]
+    host_gen_med2<-matrix(unlist(host_gen_med2), nrow=72, ncol=48)
+    
+    
+    host_gen_large2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
+    host_gen_large2[which(host_sharing==1&host_gen_large2==0)]<-mort2[2]
+    host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
+    
+    temporal_costs<-apply(sweep(sweep(host_infestation_small[,,,4:10],2:3, host_gen_small2, "*"),2,small_st_treat,"*"),4,sum)+apply(sweep(sweep(host_infestation_med[,,,4:10],2:3, host_gen_med2, "*"),2,med_st_treat,"*"),4,sum)+apply(sweep(sweep(host_infestation_large[,,,4:10],2:3, host_gen_large2, "*"),2,large_st_treat,"*"),4,sum)
+    
     
     if (bg==F)
     {
-      saveRDS(list(by_pest_treemort,by_pest_com_treemort,by_pest_res_treemort),paste0("./output/morality_",length,".RDS"))
-      saveRDS(list(sc,cc,rc),paste0("./output/costquantiles_",length,".RDS"))
+      saveRDS(temporal_costs, paste0('./output/temporal_costs_',length,'.RDS'))
+      
+      saveRDS(list(by_pest_treemort,by_pest_com_treemort,by_pest_res_treemort),paste0("./output/mortality_",length,".RDS"))
+      saveRDS(list(by_pest_st_costs,by_pest_com_costs, by_pest_res_costs),paste0("./output/costquantiles_",length,".RDS"))
     }
     if (bg==T)
     {
-      saveRDS(list(by_pest_treemort,by_pest_com_treemort,by_pest_res_treemort),"./output/mortality_bestguess.RDS" )
-      saveRDS(list(sc,cc,rc),paste0("./output/costquantiles_bestguess.RDS"))
-    }
-   pest_percent<- data.frame(sp=data2$COMMON_NAM,mort=apply(mean_mort,2,sum)/sum(mean_mort[,c(def,suck,bore),]))[c(def,suck,bore),]
+      saveRDS(temporal_costs, paste0('./output/temporal_costs_bestguess.RDS'))
+      
+       saveRDS(list(by_pest_treemort,by_pest_com_treemort,by_pest_res_treemort),"./output/mortality_bestguess.RDS" )
+       saveRDS(list(by_pest_st_costs,by_pest_com_costs, by_pest_res_costs),paste0("./output/costquantiles_bestguess.RDS")) 
+       }
 
-   pest_costs<- data.frame(sp=data2$COMMON_NAM,mort=apply(by_pest_st_costs,2,mean))[c(def,suck,bore),]
    
      if (estimate_mort==F)
       {
         if (bg==T)
         {
           mean_mort<-readRDS('./output/mean_mort.RDS')
-          by_site_st_mort<-readRDS('./output/by_site_st_mort.RDS')
+          mean_res_mort<-readRDS('./output/mean_res_mort.RDS')
+          mean_com_mort<-readRDS('./output/mean_com_mort.RDS')
           by_site_st_costs<-readRDS('./output/by_site_st_costs.RDS')
         }
       #explore results
@@ -315,7 +338,7 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       notyet_comms<-(unique(prop_areas_places$PLACEFIPS[prop_areas_places$ID_2%in%notyet_max]))
       
     #fractional importance
-      sum(mean_mort[which(grid$ID%in%mort_max),pest,tree])/sum(mean_mort[,,]) #high impact zone vs. all mortality
+      sum(mean_mort[which(grid$ID%in%mort_max),,])/sum(mean_mort[,,]) #high impact zone vs. all mortality
       sum(mean_res_mort[which(grid$ID%in%mort_max),,])/sum(mean_res_mort[,,]) #high impact zone vs. all mortality
       sum(mean_com_mort[which(grid$ID%in%mort_max),,])/sum(mean_com_mort[,,]) #high impact zone vs. all mortality
       
