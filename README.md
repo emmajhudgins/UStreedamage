@@ -11,8 +11,8 @@ Additionally, we used this framework to identify a set of risk factors for futur
 
 The predicted tree mortality/cost in each US community by tree genus is available in  "mortgrid.RDS/costgrid.RDS". For more finescale predictions, email emma.hudgins@mail.mcgill.ca
 
-Read .RDS files into R using <i>readRDS().</i>
-
+Read .RDS files into R using *readRDS()*.  
+Reproduce results by loading R project (*UStreedamage.Rproj*) and running scripts in numerical order.
 
 ## Scripts
 
