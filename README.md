@@ -14,9 +14,10 @@ The predicted tree mortality/cost in each US community by tree genus is availabl
 Read .RDS files into R using <i>readRDS().</i>
 
 
-##Scripts
+## Scripts
 
-###Scripts using private data (private_treedata_code subfolder)
+### Scripts using private data (private_treedata_code subfolder)  
+
 1. '01_totaltree_genusspecific_models.R'- fits total abundance and genus-specific abundance models for small, medium and large street trees
 2. '02_extrapolate_models.R' - predicts genus-specific tree abundance in all US communities using the models fit in the previous scripts
 3. '03_nonstreet_tree_models.R' - script used to calculate trees across all land use types using a smaller dataset for whole-community trees, which follows a same model selection approach to 01-02 (see MS), and get combined with street trees in synthesis'
@@ -24,7 +25,8 @@ Read .RDS files into R using <i>readRDS().</i>
 4. 'treemod_funcs.R' - helper functions used to assist in fitting street tree models
 
 
-###Scripts using public data
+### Scripts using public data  
+
 1.'010_beta_mortality_stan.R' - R script calling STAN model (./stan/beta_mort.stan) and saving output using latin hypercube sampling to show theoretical validity, and then fitting to pest severity data
 2. '02*_ files.R' - forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data.
 3. '030_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041)
@@ -32,10 +34,8 @@ Read .RDS files into R using <i>readRDS().</i>
 	'041_eachcommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario
 	'042_plotting.R' - reproduces important plots from the manuscript
 
+### Derived data  
 
-
-
-##Derived data
 1. 'presences_time_noforce3.csv' - pest spread forecasts from Hudgins et al. (2020) Ecol. App.
 2. 'datanorm.csv' - pest data from Hudgins et al. 2017;2019
 3. 'grid_*.csv' - predicted trees in each grid cell, for street, residential (res), and non-residential (com) trees of each size class 
