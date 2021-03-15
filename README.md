@@ -28,7 +28,7 @@ Read .RDS files into R using <i>readRDS().</i>
 ### Scripts using public data  
 
 1. '010_beta_mortality_stan.R' - R script calling STAN model (./stan/beta_mort.stan) and saving output using latin hypercube sampling to show theoretical validity, and then fitting to pest severity data  
-2. '02x_forecaste_presences_x.R' - forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data.  
+2. '02x_forecasted_presences_x.R' - forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data.  
 3. '030_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041).  
 4. 	a. '040_model_synthesis.R' - synthesizes four model predictions into tree mortality and cost estimates by community  
 	b. '041_eachcommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario  
