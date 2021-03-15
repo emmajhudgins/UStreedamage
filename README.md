@@ -36,12 +36,12 @@ Read .RDS files into R using <i>readRDS().</i>
 
 ### Derived data  
 
-1. 'presences_time_noforce3.csv' - pest spread forecasts from Hudgins et al. (2020) Ecol. App.
-2. 'datanorm.csv' - pest data from Hudgins et al. 2017;2019
-3. 'grid_*.csv' - predicted trees in each grid cell, for street, residential (res), and non-residential (com) trees of each size class 
-4. 'mortality_*.csv' - predicted mortality for each tree/grid cell/pest combination for each lag or the 
+1. 'presences_time_noforce3.csv' - pest spread forecasts from Hudgins et al. (2020) Ecol. App.  
+2. 'datanorm.csv' - pest data from Hudgins et al. 2017;2019  
+3. 'grid_x.csv' - predicted trees in each grid cell, for street, residential (res), and non-residential (com) trees of each size class   
+4. 'mortality_x.csv' - predicted mortality for each tree/grid cell/pest combination for each lag or the 
 6. 'completepredictionset.rds' - predicted trees of 3 size classes of each genus, plus # expected to die due to each pest, in each community by PLACEFIPS code. Please email me if you are looking for a csv copy of this file.
-7. 'hostgen_*.rds' - predicted asymptotic mortality for each pest/host combination
+7. 'hostgen_x.rds' - predicted asymptotic mortality for each pest/host combination
 
 For any questions or suspected bugs, feel free to open an issue or email me at emma.hudgins@mail.mcgill.ca
 
