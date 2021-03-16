@@ -12,7 +12,7 @@ rm(list=ls())
 library(stringr)
 library(dplyr)
 library(here)
-setwd(paste0(here()))
+setwd(here())
 ####2 load data ####
 data2<-read.csv('./data/datanorm.csv', stringsAsFactors = FALSE)# pest data from Hudgins et al. 2017
 rr<-which(data2$YEAR>=10) # subset to pests present for at least 10 yrs as of 2008
@@ -53,7 +53,7 @@ new_presences<-readRDS('./output/new_presences.RDS')
 cumulative_newpest<-readRDS('./output/presences_time_newpest.rds')
 ####3.0 CODE SWITCHES######
 
-estimate_mort=F #Should tree mortality be estimated or loaded?
+estimate_mort=T #Should tree mortality be estimated or loaded?
 bg=T # should most likely scenario or specific mortality debt (lag2) scenario be used?
 lag2=100 # fixed mortality debt (only relevant when bg==F)
 newpest=F # forecasting exposure for a hypothetically newly established invader
@@ -144,6 +144,10 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       him_t<-apply(host_infestation_med[,,,4:10],1:3,FUN=sum)
       hil_t<-apply(host_infestation_large[,,,4:10],1:3,FUN=sum)
       
+      his_before_t<-apply(host_infestation_small[,,,1:3],1:3,FUN=sum)
+      him_before_t<-apply(host_infestation_med[,,,1:3],1:3,FUN=sum)
+      hil_before_t<-apply(host_infestation_large[,,,1:3],1:3,FUN=sum)
+      
       hcis_t<-apply(host_com_infestation_small[,,,4:10],1:3,FUN=sum)
       hcim_t<-apply(host_com_infestation_med[,,,4:10],1:3,FUN=sum)
       hcil_t<-apply(host_com_infestation_large[,,,4:10],1:3,FUN=sum)
@@ -151,6 +155,7 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       hris_t<-apply(host_res_infestation_small[,,,4:10],1:3,FUN=sum)
       hrim_t<-apply(host_res_infestation_med[,,,4:10],1:3,FUN=sum)
       hril_t<-apply(host_res_infestation_large[,,,4:10],1:3,FUN=sum)
+      
       #total costs 
       his<-apply(host_infestation_small[,,,4:10]*ave_discount[1:7],1:3,FUN=sum)
       him<-apply(host_infestation_med[,,,4:10]*ave_discount[1:7],1:3,FUN=sum)

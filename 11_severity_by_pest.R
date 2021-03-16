@@ -10,6 +10,9 @@
 rm(list=ls()) 
 library('data.table')
 library(plyr)
+library(here)
+setwd(here())
+write_out=F
 ###read in data
 data2<-read.csv('./data/datanorm.csv', stringsAsFactors = FALSE) # pest data
 FIA<-read.csv('./data/FIAcodes_notypos_2019.csv', stringsAsFactors = FALSE) # host tree distributional data
