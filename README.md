@@ -1,18 +1,28 @@
 # Urban tree deaths from invasive pests in the United States from 2020-2050
-<i>Authors: Emma J. Hudgins, Frank H. Koch, Mark J. Ambrose, and Brian Leung</i>
+---
 
-In this paper, we estimate the number of additional urban trees expected to die in the United States in the next 30 years due to the impacts of all known invasive forest pests.
+_Authors: Emma J. Hudgins, Frank H. Koch, Mark J. Ambrose, and Brian Leung_
 
-Urban trees are expected to be the target of the greatest economic impacts of forest pests, but previous impact estimates were at the country-level, and therefore lacked the necessary pest, tree, and spatiotemporal resolution to allow targeted management. In this study, we synthesized urban tree distributional models across 30,000 US communities with spread predictions for 57 pest species and host-specific estimates of tree death due to pest exposure. 
+In this paper, we estimate the number of additional urban trees expected to die in the United States in the next 30 years due to the impacts of all known invasive forest pests.  
 
-We estimated that an additional (i.e., above background mortality) 2.2 million street trees will die due to pests from 2020 to 2050, along with 249 million community trees and 46 million residential trees. 
+Urban trees are expected to be the target of the greatest economic impacts of forest pests, but previous impact estimates were at the country-level, and therefore lacked the necessary pest, tree, and spatiotemporal resolution to allow targeted management. In this study, we synthesized urban tree distributional models across 30,000 US communities with spread predictions for 57 pest species and host-specific estimates of tree death due to pest exposure.   
 
-Additionally, we used this framework to identify a set of risk factors for future high impact urban forest pests, where we predict the highest risk due to a novel wood borer of maple or oak entering via a port in the southern US. 
+We estimate that an additional 1.5 million street trees will be killed by insects from 2020 through 2050, costing an annualized average of US$ 32M. However, these estimates hide substantial variation: 23% of urban centers will experience 94% of all insect-induced mortality, and 85% of all mortality will be due to emerald ash borer (Agrilus planipennis, EAB). We define an EAB high-impact zone spanning 902,500km<sup>2</sup>, largely within the Midwest and Northeast, within which we predict the death of 98.8% of all ash trees.  
 
-The predicted tree mortality/cost in each US community by tree genus is available in  "mortgrid.RDS/costgrid.RDS". For more finescale predictions, email emma.hudgins@mail.mcgill.ca
+“Mortality hotspot cities” facing costs of up to **13.0 million USD each** include **Milwaukee, WI, Indianapolis, IN, and Chicago, IL**.
+
+We identify Asian wood borers of maple and oak trees as the highest risk future US urban tree insect invaders, where a new establishment could cost up to **4.3B USD** in the same time frame.
+
+The predicted tree mortality/cost in each US community by tree genus is available in  "mortgrid.RDS/costgrid.RDS". For more finescale predictions, email emma.hudgins@mail.mcgill.ca  
+
+## Implementation details
+
+Written in R version 4.0.2 and rSTAN version 2.19.3
 
 Read .RDS files into R using *readRDS()*.  
-Reproduce results by loading R project (*UStreedamage.Rproj*) and running scripts in numerical order.
+
+Reproduce results by loading R project (*UStreedamage.Rproj*) and running scripts in numerical order.  
+
 
 ## Scripts
 
@@ -28,7 +38,7 @@ Reproduce results by loading R project (*UStreedamage.Rproj*) and running script
 ### Scripts using public data  
 
 1. '010_beta_mortality_stan.R' - R script calling STAN model (./stan/beta_mort.stan) and saving output using latin hypercube sampling to show theoretical validity, and then fitting to pest severity data  
-2. '02x_forecasted_presences_x.R' - forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data.  
+2. '02x_forecasted_presences_x.R',- forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data (up to date for 2015, EAB up-to-date for 2020, data from USDA FS). '027_new_presences.R' combines all forecasts into one dataframe.
 3. '030_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041).  
 4. 	a. '040_model_synthesis.R' - synthesizes four model predictions into tree mortality and cost estimates by community  
 	b. '041_eachcommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario  
