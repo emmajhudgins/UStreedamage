@@ -1,6 +1,6 @@
 rm(list=ls()) 
 require(here)
-setwd(paste0(here(), './data/'))
+setwd(paste0(here(), '/data/'))
 presences_time<-list()
 data<-read.csv('countydatanorm_march.csv', stringsAsFactors = FALSE) # spatial data
 data2<-read.csv('datanorm.csv', stringsAsFactors = FALSE) # species data, see Hudgins et al. corrigendum for information on why ALB (spp=3) cannot be accurately fit
@@ -166,33 +166,13 @@ for (i in 1:9)
   if (i %in% centroids==F)
   {
     start='real'
-    pars<-read.csv(paste("./par_rr_GDK.ic.real",i,"csv", sep="."))[,1]
+    pars<-read.csv(paste("./adj_inter_rr/par_rr_GDK.ic.real",i,"csv", sep="."))[,1]
     }
   if (i %in% centroids==T)
   {
     start=='centroid'
-    pars<-read.csv(paste("./par_rr_GDK.ic.centroid",i,"csv", sep="."))[,1]
-  }
-  if (i==48)
-  {
-   pars<-read.csv('par_GDK_forecast.48.csv')[,1]
-  }
-  if (i==44)
-  {
-    pars<-read.csv('par_GDK_forecast.44.csv')[,1]
-  }
-  if (i==49)
-  {
-    pars<-read.csv("par_GDK_HWA_s_ic_c_forecast_.csv")[,2]
-  }
-  if (i==51)
-  {
-    pars<-read.csv("par_GDK_GM_s_ic__forecast_.csv")[,1]
-  }
-  if (i==54)
-  {
-    pars<-read.csv("par_GDK_BBD_s_ic__forecast_.csv")[,1]
-  }
+    pars<-read.csv(paste("./adj_inter_rr/par_rr_GDK.ic.centroid",i,"csv", sep="."))[,1]
+}
   LLfit(c(pars))
   presences_time[[i]]<-Pfull_time
 }

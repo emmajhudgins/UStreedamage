@@ -165,7 +165,7 @@ LLfit=function(par)
       Pnext[dddd[eeee]]<-par[21]
       Pnext[cccc]<-0
     }
-    if (time>=min(which(colSums(new_hwa)>0)) &time<=max(which(colSums(new_hwa)>0)))
+    if (time%in%(which(colSums(new_hwa)>0)))
     {
       dddd<-which(prez[1:length(which(prez[,spp]!=0)),spp]%in%new_hwa[1:length(which(new_hwa[,time]!=0)),time])
       cccc<-which(!(prez[1:length(which(prez[,spp]!=0)),spp]%in%new_hwa[1:length(which(new_hwa[,time]!=0)),time]))

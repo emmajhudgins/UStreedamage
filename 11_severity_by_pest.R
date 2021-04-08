@@ -35,10 +35,11 @@ fia[[i]]<-gsub("_(\\d{2}$)", "_00\\1", fia[[i]])
 }
 
 if (write_out==T)
-{ host_gen<-as.data.frame(matrix(0, 75, 51))
+{ 
+  host_gen<-as.data.frame(matrix(0, 75, 48))
  for (i in 1:75)
  {
-   host_gen[i,which(genera%in%hostspp$Species[which(hostspp$Code%in%fia[[i]])])]<-1
+   host_gen[i,which(genus%in%hostspp$Species[which(hostspp$Code%in%fia[[i]])])]<-1
  }
  host_gen<-host_gen[-c(which(rowSums(host_gen)==0)),]
 host_gen<-host_gen[-4,]
@@ -50,12 +51,12 @@ if (write_out==F)
 host_gen<-read.csv('./output/host_sharing_total.csv')
 }
 
-stan_est<-t(seq(1,8)) # severity codes
+stan_est<-t(seq(1,8)) # severity codes A-H (1-8). Pests assumed to be at least B given they were reported as intermediate impact by Aukema et al. (see MS)
 data2<-data2[-c(25,69),]# remove species with no host data
 data2<-data2[-4,]
-for (i in 1:72)
+for (i in 1:nrow(host_gen))
 {
-  if(as.character(data2$LATIN_NAME)[i]%in%as.character(severity$clean_pest)==F){host_gen[i,which(host_gen[i,]==1)]<-stan_est[2]}
+host_gen[i,which(host_gen[i,]==1)]<-stan_est[2]# set all pests to at least level 2 severity since they are considered 'intermediate impact' (see MS)
 }
 inv_dat$Genus<-tolower(as.character(inv_dat$genus2))
 colnames(allprop)[1]<-"code.y"
@@ -76,25 +77,8 @@ inv_dat_fia<-inv_dat_fia[!duplicated(inv_dat_fia),]
 inv_dat_fia$severity2<-rep(0,nrow(inv_dat_fia))
 allprop2$genus<-gsub("\\s.*", "", allprop2$sci)
 
-##sum up proportions by genus
-missing_gen_small<-aggregate(allprop2$prop_small~allprop2$genus, FUN=sum)
-colnames(missing_gen_small)[1]<-'genus'
-allprop2<-merge(allprop2, missing_gen_small, by="genus")
-missing_gen_med<-aggregate(allprop2$prop_med~allprop2$genus, FUN=sum)
-colnames(missing_gen_med)[1]<-'genus'
-allprop2<-merge(allprop2, missing_gen_med, by="genus")
-missing_gen_large<-aggregate(allprop2$prop_large~allprop2$genus, FUN=sum)
-colnames(missing_gen_large)[1]<-'genus'
-allprop2<-merge(allprop2, missing_gen_large, by="genus")
 
-#assign each species code to a genus
-genera_codes<-codematch$code.y[match(tolower(as.character(inv_dat_fia$genus2)), tolower(as.character(codematch$sci)))[which(codematch$Species[match(tolower(as.character(inv_dat_fia$genus2)), tolower(as.character(codematch$sci)))]=='spp.')]]
-
-#match pests to genera by severity in Poter or Aukema
-for (i in 1:72)
-{
-  if(as.character(data2$LATIN_NAME)[i]%in%as.character(severity$clean_pest)==F){host_gen[i,which(host_gen[i,]==1)]<-stan_est[2]}
-}
+#match pests to genera by severity in Potter or Aukema
 inv_dat_fia$severity2[which(inv_dat_fia$severity==0)]<-stan_est[2]
 inv_dat_fia$severity2[which(inv_dat_fia$severity==1)]<-stan_est[3]
 inv_dat_fia$severity2[which(inv_dat_fia$severity==3)]<-stan_est[4]
@@ -105,16 +89,26 @@ inv_dat_fia$severity2[which(inv_dat_fia$severity==10)]<-stan_est[8]
 
 inv_dat_fia<-subset(inv_dat_fia, FIA..Code.y%in%allprop2$FIA..Code)
 inv_dat_fia<-merge(inv_dat_fia, allprop2, 'sci')
-colnames(inv_dat_fia)[ncol(inv_dat_fia):(ncol(inv_dat_fia)-2)]<-c("prop_large", "prop_med", "prop_small")
 inv_dat_fia<-data.table(inv_dat_fia)
 
+## create summary tables used in MS supplement
+
+tab1<-apply(table(inv_dat_fia$Genus, inv_dat_fia$clean_pest,inv_dat_fia$severity2)/c(table(inv_dat_fia$clean_pest)), c(1,3), sum)
+tab2<-table(inv_dat_fia$clean_pest, inv_dat_fia$severity2)/c(table(inv_dat_fia$clean_pest))
+tab3<-apply(table(inv_dat_fia$genus.1, inv_dat_fia$clean_pest,inv_dat_fia$severity2)/c(table(inv_dat_fia$clean_pest)), c(1,3), sum)
+
+write.csv(tab1, "./output/tab1.csv")
+write.csv(tab2, "./output/tab2.csv")
+write.csv(tab3, "./output/tab3.csv")
+
 #rescale severity by proportion
-agg_sev_small<-ddply(inv_dat_fia, .(clean_pest,genus2),function(x){data.frame(severity_small=weighted.mean(x$severity, x$prop_small))})
-agg_sev_med<-ddply(inv_dat_fia, .(clean_pest,genus2),function(x){data.frame(severity_med=weighted.mean(x$severity, x$prop_med))})
-agg_sev_large<-ddply(inv_dat_fia, .(clean_pest,genus2),function(x){data.frame(severity_large=weighted.mean(x$severity, x$prop_large))})
+agg_sev_small<-ddply(inv_dat_fia, .(clean_pest,genus2),function(x){data.frame(severity_small=weighted.mean(x$severity2, x$prop_small))})
+agg_sev_med<-ddply(inv_dat_fia, .(clean_pest,genus2),function(x){data.frame(severity_med=weighted.mean(x$severity2, x$prop_med))})
+agg_sev_large<-ddply(inv_dat_fia, .(clean_pest,genus2),function(x){data.frame(severity_large=weighted.mean(x$severity2, x$prop_large))})
 
 
 #convert to matrix format (pest rows, genera columns)
+colnames(host_gen)<-genus
 host_gen_small<-host_gen
 host_gen_med<-host_gen
 host_gen_large<-host_gen
@@ -128,23 +122,8 @@ for (i in  1:72)
 host_gen_small[host_gen_small==1]<-stan_est[2]
 host_gen_med[host_gen_med==1]<-stan_est[2]
 host_gen_large[host_gen_large==1]<-stan_est[2]
-#match columns in pest spread data
-matchedhosts<-match(toupper(genus),toupper(colnames(host_gen)))
-matchedhosts<-matchedhosts[which(is.na(matchedhosts)==F)]
-host_gen<-host_gen[,matchedhosts]
-host_gen_small<-host_gen_small[,matchedhosts]
-host_gen_med<-host_gen_med[,matchedhosts]
-host_gen_large<-host_gen_large[,matchedhosts]
-
-## create summary tables used in MS supplement
-tab1<-apply(table(inv_dat_fia$Genus, inv_dat_fia$clean_pest,inv_dat_fia$severity)/c(table(inv_dat_fia$clean_pest)), c(1,3), sum)
-tab2<-table(inv_dat_fia$clean_pest, inv_dat_fia$severity)/c(table(inv_dat_fia$clean_pest))
-tab3<-apply(table(inv_dat_fia$genus.1, inv_dat_fia$clean_pest,inv_dat_fia$severity)/c(table(inv_dat_fia$clean_pest)), c(1,3), sum)
-write.csv(tab1, "./output/tab1.csv")
-write.csv(tab2, "./output/tab2.csv")
-write.csv(tab3, "./output/tab3.csv")
 
 ##write output
 saveRDS(host_gen_small, file='./output/host_gen_small.RDS')
 saveRDS(host_gen_med, file='./output/host_gen_med.RDS')
-saveRDS(host_gen_large, file='/output/host_gen_large.RDS')
+saveRDS(host_gen_large, file='./output/host_gen_large.RDS')

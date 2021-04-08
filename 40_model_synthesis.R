@@ -27,7 +27,7 @@ trees=str_to_sentence(genus)
 host_gen_small<-readRDS("./output/host_gen_small.rds") # pest severity data (rows) for each tree genus  (columns) ofsmall, trees , using potter scale but standardized for species frequency in street tree data 
 host_gen_med<-readRDS("./output/host_gen_med.rds") # same but medium
 host_gen_large<-readRDS("./output/host_gen_large.rds") # large
-host_sharing<-read.csv('./output/host_sharing_total.csv')[,genus] # 0/1 matrix of whether a pest impacts a tree genus
+host_sharing<-read.csv('./output/host_sharing_total.csv')  # 0/1 matrix of whether a pest impacts a tree genus
 
 #row indices for pest guilds (pathogens removed)
 def<-which(data2$Guild=="Defoliators") 
@@ -53,9 +53,9 @@ new_presences<-readRDS('./output/new_presences.RDS')
 cumulative_newpest<-readRDS('./output/presences_time_newpest.rds')
 ####3.0 CODE SWITCHES######
 
-estimate_mort=T #Should tree mortality be estimated or loaded?
+estimate_mort=F #Should tree mortality be estimated or loaded?
 bg=T # should most likely scenario or specific mortality debt (lag2) scenario be used?
-lag2=100 # fixed mortality debt (only relevant when bg==F)
+lag2=50 # fixed mortality debt (only relevant when bg==F)
 newpest=F # forecasting exposure for a hypothetically newly established invader
 
 ####3.1 lags and discounting ####
@@ -166,28 +166,30 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       
       #interpolate proportional mortality based on STAN model output (posterior mean in this case), and Potter et al. severity categories
 
-      host_gen_small2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
-      host_gen_small2[which(host_sharing==1&host_gen_small2==0)]<-mort2[2]
+      host_gen_small2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
       host_gen_small2<-matrix(unlist(host_gen_small2), nrow=72, ncol=48)
       
-      host_gen_med2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
-      host_gen_med2[which(host_sharing==1&host_gen_med2==0)]<-mort2[2]
+      host_gen_med2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
       host_gen_med2<-matrix(unlist(host_gen_med2), nrow=72, ncol=48)
       
       
-      host_gen_large2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
-      host_gen_large2[which(host_sharing==1&host_gen_large2==0)]<-mort2[2]
+      host_gen_large2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
       host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
       exposure_st<-his_t+him_t+hil_t
       exposure_res<-hris_t+hrim_t+hril_t
       exposure_com<-hcis_t+hcim_t+hcil_t
+      hostexp<-data.frame(street=apply(exposure_st,3,sum),res=apply(exposure_res,3,sum),com=apply(exposure_com,3,sum), genus=genus)
+      pestexp<-data.frame(street=apply(exposure_st,2,sum),res=apply(exposure_res,2,sum),com=apply(exposure_com,2,sum), pest=data2$COLUMN_NAM)
       mean_mort<-(apply(sweep(his_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(him_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hil_t,2:3, host_gen_large2, "*"),1:3,sum))
+      mean_before_mort<-(apply(sweep(his_before_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(him_before_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hil_before_t,2:3, host_gen_large2, "*"),1:3,sum))
+      before_vs_now<-cbind(apply(mean_before_mort,2,sum), apply(mean_mort,2,sum))
       mean_com_mort<-(apply(sweep(hcis_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(hcim_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hcil_t,2:3, host_gen_large2, "*"),1:3,sum))
+      
       mean_res_mort<-(apply(sweep(hris_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(hrim_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hril_t,2:3, host_gen_large2, "*"),1:3,sum))
       saveRDS(mean_mort, './output/mean_mort.RDS')
       saveRDS(mean_com_mort, './output/mean_com_mort.RDS')
       saveRDS(mean_res_mort, './output/mean_res_mort.RDS')
-      
+      pest_percent<-cbind(data2$COLUMN_NAM,as.numeric((apply(mean_mort,2,sum)/sum(mean_mort))))
       ###5 Cost conversion ####
     
       
@@ -231,17 +233,14 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
     {
       mort2<-mort[i,2:8]
 
-      host_gen_small2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
-      host_gen_small2[which(host_sharing==1&host_gen_small2==0)]<-mort2[2]
+      host_gen_small2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
       host_gen_small2<-matrix(unlist(host_gen_small2), nrow=72, ncol=48)
 
-       host_gen_med2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
-      host_gen_med2[which(host_sharing==1&host_gen_med2==0)]<-mort2[2]
+       host_gen_med2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
       host_gen_med2<-matrix(unlist(host_gen_med2), nrow=72, ncol=48)
 
 
-      host_gen_large2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
-      host_gen_large2[which(host_sharing==1&host_gen_large2==0)]<-mort2[2]
+      host_gen_large2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
       host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
 
       by_pest_st_costs[i,]<-apply(his*host_gen_small2,1, sum)*small_st_treat+apply(him*host_gen_med2,1, sum)*med_st_treat+apply(hil*host_gen_large2,1, sum)*large_st_treat
@@ -284,17 +283,14 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
 
     mort2<-colMeans(mort)[2:8]
     
-    host_gen_small2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
-    host_gen_small2[which(host_sharing==1&host_gen_small2==0)]<-mort2[2]
+    host_gen_small2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_small))))$y, nrow=72, ncol=48)
     host_gen_small2<-matrix(unlist(host_gen_small2), nrow=72, ncol=48)
     
-    host_gen_med2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
-    host_gen_med2[which(host_sharing==1&host_gen_med2==0)]<-mort2[2]
+    host_gen_med2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_med))))$y, nrow=72, ncol=48)
     host_gen_med2<-matrix(unlist(host_gen_med2), nrow=72, ncol=48)
     
     
-    host_gen_large2<-matrix(approx(x=cbind(c(0,1,3,5,8,9,10)),y=cbind(as.vector(c(0,mort2[2:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
-    host_gen_large2[which(host_sharing==1&host_gen_large2==0)]<-mort2[2]
+    host_gen_large2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
     host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
     
     temporal_costs<-apply(sweep(sweep(host_infestation_small[,,,4:10],2:3, host_gen_small2, "*"),2,small_st_treat,"*"),4,sum)+apply(sweep(sweep(host_infestation_med[,,,4:10],2:3, host_gen_med2, "*"),2,med_st_treat,"*"),4,sum)+apply(sweep(sweep(host_infestation_large[,,,4:10],2:3, host_gen_large2, "*"),2,large_st_treat,"*"),4,sum)
@@ -316,40 +312,49 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
        }
 
    
-     if (estimate_mort==F)
-      {
-        if (bg==T)
-        {
-          mean_mort<-readRDS('./output/mean_mort.RDS')
-          mean_res_mort<-readRDS('./output/mean_res_mort.RDS')
-          mean_com_mort<-readRDS('./output/mean_com_mort.RDS')
-          by_site_st_costs<-readRDS('./output/by_site_st_costs.RDS')
-        }
-      #explore results
-      #can change focal pest and tree
-      tree_nm="Fraxinus"
-      pest_nm="Agrilus planipennis"
-      tree=which(trees==tree_nm)
-      pest=which(pests==pest_nm)
-      lag2=10 # must correspond to bestguess lag for that species
-      mort_max<-grid$ID[unique(c(new_presences[[pest]][,(ncol(new_presences[[pest]])-10+4):(ncol(new_presences[[pest]])-((lag2-5)/5))]))]
-      
-      notyet_max<-grid$ID[unique(c(new_presences[[pest]][,(ncol(new_presences[[pest]]))]))]
-      sum(by_site_st_costs[which(grid$ID%in%mort_max),c(def,suck,bore),])/sum(by_site_st_costs[,c(def,suck,bore),])
-      #saturated communities
-      comms<-(unique(prop_areas_places$PLACEFIPS[which(prop_areas_places$ID_2%in%mort_max)]))
-      length(comms)/length(unique(prop_areas_places$PLACEFIPS))
-      #partially saturated communities
-      notyet_comms<-(unique(prop_areas_places$PLACEFIPS[prop_areas_places$ID_2%in%notyet_max]))
-      
-    #fractional importance
-      sum(mean_mort[which(grid$ID%in%mort_max),,])/sum(mean_mort[,,]) #high impact zone vs. all mortality
-      sum(mean_res_mort[which(grid$ID%in%mort_max),,])/sum(mean_res_mort[,,]) #high impact zone vs. all mortality
-      sum(mean_com_mort[which(grid$ID%in%mort_max),,])/sum(mean_com_mort[,,]) #high impact zone vs. all mortality
-      
-      sum(mean_mort[which(grid$ID%in%mort_max),pest,tree])/sum((grid_small[,20]+grid_med[,20]+grid_large[,20])[which(grid$ID%in%mort_max)]) # high impact zone vs. all ash trees
+
+  }
   
+  if (estimate_mort==F)
+  {
+    if (bg==T)
+    {
+      mean_mort<-readRDS('./output/mean_mort.RDS')
+      mean_res_mort<-readRDS('./output/mean_res_mort.RDS')
+      mean_com_mort<-readRDS('./output/mean_com_mort.RDS')
+      by_site_st_costs<-readRDS('./output/by_site_st_costs.RDS')
+      by_pest_costs<-readRDS('./output/costquantiles_bestguess.RDS')
+      
     }
+    #explore results
+    #can change focal pest and tree
+    tree_nm="Fraxinus"
+    pest_nm="Agrilus planipennis"
+    tree=which(trees==tree_nm)
+    pest=which(pests==pest_nm)
+    lag2=10 # must correspond to bestguess lag for that species
+    mort_max<-grid$ID[unique(c(new_presences[[pest]][,(ncol(new_presences[[pest]])-10+4):(ncol(new_presences[[pest]])-((lag2-5)/5))]))]
+    eab_ID<-grid$ID[unique(c(new_presences[[pest]]))]
+    ash_ID<-grid$ID[which(grid_small[,20]!=0)]
+    ash_comms<-unique(prop_areas_places$PLACEFIPS[which(prop_areas_places$ID_2%in%ash_ID)])
+    
+    sum((grid_small+grid_med+grid_large)[which(grid$ID%in%eab_ID),20])/ sum((grid_small+grid_med+grid_large)[which(grid$ID%in%ash_ID),20])
+    notyet_max<-grid$ID[unique(c(new_presences[[pest]][,(ncol(new_presences[[pest]]))]))]
+    sum(by_site_st_costs[which(grid$ID%in%mort_max),c(def,suck,bore),])/sum(by_site_st_costs[,c(def,suck,bore),])
+    #saturated communities
+    comms<-(unique(prop_areas_places$PLACEFIPS[which(prop_areas_places$ID_2%in%mort_max)]))
+    length(comms)/length(unique(prop_areas_places$PLACEFIPS))
+    #partially saturated communities
+    notyet_comms<-(unique(prop_areas_places$PLACEFIPS[prop_areas_places$ID_2%in%notyet_max]))
+    (length(comms)+length(notyet_comms))/length(ash_comms)
+    
+    #fractional importance
+    sum(mean_mort[which(grid$ID%in%mort_max),,])/sum(mean_mort[,,]) #high impact zone vs. all mortality
+    sum(mean_res_mort[which(grid$ID%in%mort_max),,])/sum(mean_res_mort[,,]) #high impact zone vs. all mortality
+    sum(mean_com_mort[which(grid$ID%in%mort_max),,])/sum(mean_com_mort[,,]) #high impact zone vs. all mortality
+    
+    sum(mean_mort[which(grid$ID%in%mort_max),pest,tree])/sum((grid_small[,20]+grid_med[,20]+grid_large[,20])[which(grid$ID%in%mort_max)]) # high impact zone vs. all ash trees
+    
   }
 }
   #### 6 forecast new pest ####

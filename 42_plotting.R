@@ -20,7 +20,9 @@ bestguess_genus<-readRDS('./output/mean_mort.RDS')[,c(def,bore,suck),]
 new_presences<-readRDS('./output/new_presences.RDS')
 
 #trees
-pred_trees_huge<-readRDS('./output/pred_trees_huge_public.RDS') 
+pred_trees_huge<-readRDS('./output/pred_trees_huge_public.RDS') #private data removed
+#pred_trees_huge<-readRDS('~/Desktop/OneDrive - McGill University/Grad/scripts/pred_trees_huge.RDS') #private data
+
 
 # 50x50km grid spatial information
 grid<-read.csv('./data/countydatanorm_march.csv')
@@ -64,9 +66,9 @@ data2$COMMON_NAM[which(data2$Guild=="Defoliators")][order(apply(long_st[,which(d
 
 ## plot best guess quantiles
 
-bestguess<-readRDS('./output/costquantiles_bestguess.RDS')[[1]]
+bestguess<-rowSums(readRDS('./output/costquantiles_bestguess.RDS')[[1]])*0.02/(1-(1+0.02)^-30)
 
-ggplot(data=data.frame(bestguess))+geom_density(aes(x=unlist(c(bestguess))), fill=viridis(1)[1])+theme_classic()+scale_x_continuous(name="Best Guess Scenario Annualized Street Tree Costs (2019 USD)",limits=c(3e+06,8e+07))+scale_y_continuous(name="Posterior Probability Density")+theme(axis.text=element_text(size=11))+geom_vline(xintercept=(quantile(bestguess, 0.025)), linetype="dotted", size=1.5, color="yellow")+ geom_vline(xintercept=(quantile(bestguess, 0.975)), linetype="dotted", size=1.5, color="yellow")+ geom_vline(xintercept=(mean(unlist(c(bestguess)))), linetype="dotted", size=1.5, color="red")
+ggplot(data=data.frame(bestguess))+geom_density(aes(x=unlist(c(bestguess))), fill=viridis(1)[1])+theme_classic()+scale_x_continuous(name="Best Guess Scenario Annualized Street Tree Costs (2019 USD)",limits=c(2.5e+07,4e+07))+scale_y_continuous(name="Posterior Probability Density")+theme(axis.text=element_text(size=11))+geom_vline(xintercept=(quantile(bestguess, 0.025)), linetype="dotted", size=1.5, color="yellow")+ geom_vline(xintercept=(quantile(bestguess, 0.975)), linetype="dotted", size=1.5, color="yellow")+ geom_vline(xintercept=(mean(unlist(c(bestguess)))), linetype="dotted", size=1.5, color="red")
 
 
 ###vary guilds across scenarios
@@ -75,9 +77,9 @@ ggplot(data=data.frame(bestguess))+geom_density(aes(x=unlist(c(bestguess))), fil
 bestguess<-apply(readRDS('./output/by_site_st_costs.RDS'),1,sum)
 
 ##toggle through list entries [[1]] street, [[2]] community [[3]] residential when loading
-long<-readRDS('./output/costquantiles_long.RDS')[[3]]
-short<-readRDS('./output/costquantiles_short.RDS')[[3]]
-mid<-readRDS('./output/costquantiles_mid.RDS')[[3]]
+long<-readRDS('./output/costquantiles_long.RDS')[[1]]
+short<-readRDS('./output/costquantiles_short.RDS')[[1]]
+mid<-readRDS('./output/costquantiles_mid.RDS')[[1]]
 
 scens<-c("short", "mid", "long")
 scenarios<-matrix(0,10000,12)
@@ -112,9 +114,9 @@ quantile(scenarios[,7:9], 0.975)*(0.02/(1-(1+0.02)^-30))
 
 ###treemortality
 
-short<-readRDS('./output/mortality_short.RDS')[[3]]
-mid<-readRDS('./output/mortality_mid.RDS')[[3]]
-long<-readRDS('./output/mortality_long.RDS')[[3]]
+short<-readRDS('./output/mortality_short.RDS')[[1]]
+mid<-readRDS('./output/mortality_mid.RDS')[[1]]
+long<-readRDS('./output/mortality_long.RDS')[[1]]
 
 scens<-c('short', 'mid', 'long')
 
@@ -304,8 +306,8 @@ pal<-viridis
 #m$Col <- pal(50)[as.numeric(cut(log10(m$cost+1),breaks = 50))]
 points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
-points(m2@coords[order(m2$mort, decreasing=T)[c(1:3,5,6,7,9,10)],1:2], cex=1, col='black', bg=viridis(50)[50], pch=21)
-shadowtext(m2@coords[order(m2$mort, decreasing=T)[c(1:3,5,6,7,9,10)],1:2], labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J" )[c(1:8)],pos=4, offset=0.25, cex=1 , col=viridis(50)[50])
+points(m2@coords[order(m2$mort, decreasing=T)[c(1:3,7:10)],1:2], cex=1, col='black', bg=viridis(50)[50], pch=21)
+shadowtext(m2@coords[order(m2$mort, decreasing=T)[c(1:3,7:10)],1:2], labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J" )[c(1:7)],pos=4, offset=0.25, cex=1 , col=viridis(50)[50])
 #
 m2@data[order(m2$mort, decreasing=T)[c(1:10)],]
 
@@ -315,6 +317,8 @@ m2$mort[order(m2$mort, decreasing=T)[c(1:10)]]
 m2$cost[order(m2$mort, decreasing=T)[c(1:10)]]
 sum(m2$cost[order(m2$mort, decreasing=T)[c(1:10)]]
 )
+
+statemort<-m2@data%>%group_by(ST)%>%summarise_if(is.numeric,sum)
 
 image(1,1:50,t(1:50), col=pal(50), axes=FALSE)
 par(las=1)

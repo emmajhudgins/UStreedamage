@@ -13,8 +13,10 @@ bore<-which(data2$Guild=="Borers")
 suck<-which(data2$Guild=="Suckers")
 bestguess_genus<-readRDS('./output/mean_mort.RDS')[,c(def,bore,suck),]
 bestguess_cost_genus<-readRDS('./output/by_site_st_costs.RDS')[,c(def,bore,suck),]
+pred_trees_huge<-readRDS('./output/pred_trees_huge_public.RDS') #private data removed so results will be dissimilar to MS
+#pred_trees_huge<-readRDS('~/Desktop/OneDrive - McGill University/Grad/scripts/pred_trees_huge.rds') #private data
+
 #pred_trees_huge<-readRDS('./output/pred_trees_huge_public.RDS') #private data removed so results will be dissimilar to MS
-pred_trees_huge<-readRDS('./outputpred_trees_huge_public.RDS') #private data removed so results will be dissimilar to MS
 prop_areas_places<-read.csv('./data/prop_place_area_2019.csv')#community information with regards to 50x50km grid
 
 # 50x50km grid spatial information
