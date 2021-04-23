@@ -72,5 +72,9 @@ for (i in c(1:72))
     new_presences[[i]][,time2]<-c(cumulative_presences[[i]][which((cumulative_presences[[i]][1:length(which(cumulative_presences[[i]][,time-(lag/5)]!=0)),time-(lag/5)]%in%cumulative_presences[[i]][1:length(which(cumulative_presences[[i]][,time-(lag/5)-1]!=0)),time-(lag/5)-1])==F),time2], rep(0,3372-length(which((cumulative_presences[[i]][1:length(which(cumulative_presences[[i]][,time-(lag/5)]!=0)),time-(lag/5)]%in%cumulative_presences[[i]][1:length(which(cumulative_presences[[i]][,time-(lag/5)-1]!=0)),time-(lag/5)-1])==F))))
     time2=time2+1
   }
+  while (ncol(new_presences[[i]])<10)
+  {
+    new_presences[[i]]<-cbind(rep(0, 3372), new_presences[[i]])
+  }
 }
 saveRDS(new_presences, file="../output/new_presences.RDS")

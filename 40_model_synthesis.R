@@ -53,9 +53,9 @@ new_presences<-readRDS('./output/new_presences.RDS')
 cumulative_newpest<-readRDS('./output/presences_time_newpest.rds')
 ####3.0 CODE SWITCHES######
 
-estimate_mort=F #Should tree mortality be estimated or loaded?
+estimate_mort=T #Should tree mortality be estimated or loaded?
 bg=T # should most likely scenario or specific mortality debt (lag2) scenario be used?
-lag2=50 # fixed mortality debt (only relevant when bg==F)
+lag2=10 # fixed mortality debt (only relevant when bg==F)
 newpest=F # forecasting exposure for a hypothetically newly established invader
 
 ####3.1 lags and discounting ####
@@ -118,7 +118,7 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
         for (q in 0:((lag2/5)-1))
         {
           presences<-new_presences[[i]][,(ncol(new_presences[[i]])-10+t-q)]
-          if (sum(presences)>0)
+          if (sum(presences)>0 & (ncol(new_presences[[i]])-10+t-q)>0)
           {
             host_infestation_small[presences,i,susc,t]<-host_infestation_small[presences,i,susc,t]+grid_small[presences,susc]*(1/(lag2/5))
             host_infestation_med[presences,i,susc,t]<- host_infestation_med[presences,i,susc,t]+grid_med[presences,susc]*(1/(lag2/5))
@@ -144,10 +144,6 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       him_t<-apply(host_infestation_med[,,,4:10],1:3,FUN=sum)
       hil_t<-apply(host_infestation_large[,,,4:10],1:3,FUN=sum)
       
-      his_before_t<-apply(host_infestation_small[,,,1:3],1:3,FUN=sum)
-      him_before_t<-apply(host_infestation_med[,,,1:3],1:3,FUN=sum)
-      hil_before_t<-apply(host_infestation_large[,,,1:3],1:3,FUN=sum)
-      
       hcis_t<-apply(host_com_infestation_small[,,,4:10],1:3,FUN=sum)
       hcim_t<-apply(host_com_infestation_med[,,,4:10],1:3,FUN=sum)
       hcil_t<-apply(host_com_infestation_large[,,,4:10],1:3,FUN=sum)
@@ -160,6 +156,10 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       his<-apply(host_infestation_small[,,,4:10]*ave_discount[1:7],1:3,FUN=sum)
       him<-apply(host_infestation_med[,,,4:10]*ave_discount[1:7],1:3,FUN=sum)
       hil<-apply(host_infestation_large[,,,4:10]*ave_discount[1:7],1:3,FUN=sum)
+      
+      his_before_t<-apply(host_infestation_small[,,,1:3],1:3,FUN=sum)
+      him_before_t<-apply(host_infestation_med[,,,1:3],1:3,FUN=sum)
+      hil_before_t<-apply(host_infestation_large[,,,1:3],1:3,FUN=sum)
       
       ### mean mortality behaviour
       mort2<-colMeans(mort)[2:8]
@@ -176,6 +176,7 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       host_gen_large2<-matrix(approx(x=cbind(c(0,2:8)),y=cbind(as.vector(c(0,mort2[1:7]))), xout=as.vector(unlist(c(host_gen_large))))$y, nrow=72, ncol=48)
       host_gen_large2<-matrix(unlist(host_gen_large2), nrow=72, ncol=48)
       exposure_st<-his_t+him_t+hil_t
+      spatial_exp<-saveRDS(apply(exposure_st,1,sum), file="./output/spatial_exposure.RDS")
       exposure_res<-hris_t+hrim_t+hril_t
       exposure_com<-hcis_t+hcim_t+hcil_t
       hostexp<-data.frame(street=apply(exposure_st,3,sum),res=apply(exposure_res,3,sum),com=apply(exposure_com,3,sum), genus=genus)
@@ -184,7 +185,6 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
       mean_before_mort<-(apply(sweep(his_before_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(him_before_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hil_before_t,2:3, host_gen_large2, "*"),1:3,sum))
       before_vs_now<-cbind(apply(mean_before_mort,2,sum), apply(mean_mort,2,sum))
       mean_com_mort<-(apply(sweep(hcis_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(hcim_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hcil_t,2:3, host_gen_large2, "*"),1:3,sum))
-      
       mean_res_mort<-(apply(sweep(hris_t,2:3,host_gen_small2, "*"),1:3,sum)+apply(sweep(hrim_t,2:3, host_gen_med2, "*"),1:3,sum)+apply(sweep(hril_t,2:3, host_gen_large2, "*"),1:3,sum))
       saveRDS(mean_mort, './output/mean_mort.RDS')
       saveRDS(mean_com_mort, './output/mean_com_mort.RDS')
@@ -349,9 +349,9 @@ host_com_infestation_small=host_com_infestation_med=host_com_infestation_large=a
     (length(comms)+length(notyet_comms))/length(ash_comms)
     
     #fractional importance
-    sum(mean_mort[which(grid$ID%in%mort_max),,])/sum(mean_mort[,,]) #high impact zone vs. all mortality
-    sum(mean_res_mort[which(grid$ID%in%mort_max),,])/sum(mean_res_mort[,,]) #high impact zone vs. all mortality
-    sum(mean_com_mort[which(grid$ID%in%mort_max),,])/sum(mean_com_mort[,,]) #high impact zone vs. all mortality
+    sum(mean_mort[which(grid$ID%in%mort_max),c(def,suck,bore),])/sum(mean_mort[,c(def,suck,bore),]) #high impact zone vs. all mortality
+    sum(mean_res_mort[which(grid$ID%in%mort_max),c(def,suck,bore),])/sum(mean_res_mort[,c(def,suck,bore),]) #high impact zone vs. all mortality
+    sum(mean_com_mort[which(grid$ID%in%mort_max),c(def,suck,bore),])/sum(mean_com_mort[,c(def,suck,bore),]) #high impact zone vs. all mortality
     
     sum(mean_mort[which(grid$ID%in%mort_max),pest,tree])/sum((grid_small[,20]+grid_med[,20]+grid_large[,20])[which(grid$ID%in%mort_max)]) # high impact zone vs. all ash trees
     

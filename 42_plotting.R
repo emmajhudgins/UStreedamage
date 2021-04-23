@@ -77,9 +77,9 @@ ggplot(data=data.frame(bestguess))+geom_density(aes(x=unlist(c(bestguess))), fil
 bestguess<-apply(readRDS('./output/by_site_st_costs.RDS'),1,sum)
 
 ##toggle through list entries [[1]] street, [[2]] community [[3]] residential when loading
-long<-readRDS('./output/costquantiles_long.RDS')[[1]]
-short<-readRDS('./output/costquantiles_short.RDS')[[1]]
-mid<-readRDS('./output/costquantiles_mid.RDS')[[1]]
+long<-readRDS('./output/costquantiles_long.RDS')[[3]]
+short<-readRDS('./output/costquantiles_short.RDS')[[3]]
+mid<-readRDS('./output/costquantiles_mid.RDS')[[3]]
 
 scens<-c("short", "mid", "long")
 scenarios<-matrix(0,10000,12)
@@ -114,9 +114,9 @@ quantile(scenarios[,7:9], 0.975)*(0.02/(1-(1+0.02)^-30))
 
 ###treemortality
 
-short<-readRDS('./output/mortality_short.RDS')[[1]]
-mid<-readRDS('./output/mortality_mid.RDS')[[1]]
-long<-readRDS('./output/mortality_long.RDS')[[1]]
+short<-readRDS('./output/mortality_short.RDS')[[3]]
+mid<-readRDS('./output/mortality_mid.RDS')[[3]]
+long<-readRDS('./output/mortality_long.RDS')[[3]]
 
 scens<-c('short', 'mid', 'long')
 
@@ -159,7 +159,7 @@ data<-data.frame(cbind(time_vl, time_vm,  time_vs))
 
 pal<-viridis
 
-ggplot(data)+geom_col(aes(x=1:7, y=time_vl, fill="100 Year"))+geom_col(aes(x=1:7, y=time_vm ,fill="50 Year"))+geom_col(aes(x=1:7, y=time_vs, fill="10 Year"))+scale_x_continuous(name="Time", breaks=c(1,3,5,7), labels=c(2020,2030,2040,2050))+scale_y_continuous(name="Cost (2019 USD)")+theme_classic()+theme(axis.text=element_text(size=16), axis.title = element_text(size=18), legend.text = element_text(size=16), legend.title = element_text(size=18))+scale_fill_manual(values=c("100 Year"=pal(3)[1],"50 Year"=pal(3)[2], "10 Year"=pal(3)[3]), name="Mortality Debt", breaks=c("10 Year", "50 Year", "100 Year"))+geom_path(aes(x=1:7, y=bestguess), colour='darkred', size=1,linetype="dashed")
+ggplot(data)+geom_col(aes(x=1:7, y=time_vs, fill="10 Year"), width=0.5,)+geom_col(aes(x=1.1:7.1, y=time_vm ,fill="50 Year"),width=0.4,position=position_dodge(0.3))+geom_col(aes(x=1.2:7.2, y=time_vl, fill="100 Year"), width=0.5, position=position_dodge(0.5))+scale_x_continuous(name="Time", breaks=c(1,3,5,7), labels=c(2020,2030,2040,2050))+scale_y_continuous(name="Cost (2019 USD)")+theme_classic()+theme(axis.text=element_text(size=16), axis.title = element_text(size=18), legend.text = element_text(size=16), legend.title = element_text(size=18))+scale_fill_manual(values=c("100 Year"=alpha(pal(3)[1],0.75),"50 Year"=alpha(pal(3)[2],0.75), "10 Year"=alpha(pal(3)[3],0.75)), name="Mortality Debt", breaks=c("10 Year", "50 Year", "100 Year"))+geom_path(aes(x=1:7, y=bestguess), colour='darkred', size=1,linetype="dashed")
 
 
 ##newpest

@@ -5,7 +5,7 @@ _Authors: Emma J. Hudgins, Frank H. Koch, Mark J. Ambrose, and Brian Leung_
 
 
 <img src="readmefig.png" alt="Model outputs" width="800">
-<sub>Model outputs for the first three subcomponent models, including a. predicted street tree abundance, b. predicted newly invaded sites of existing IAFIs, c. predicted street tree exposure levels (number of focal host tree + IAFI interactions) from 2020 to 2050, and finally d. Predicted total tree mortality from 2020 to 2050 in the most likely mortality debt scenario across space. Top seven most impacted cities or groups of nearby cities are shown in terms of total tree mortality 2020 to 2050 (A = Milwaukee, WI; B = Chicago/Aurora/Naperville/Arlington Heights, IL; C = New York, NY; D = Seattle, WA; E = Warwick, RI, F = Philadelphia, PA; G = Indianapolis, IN). </sub>
+<sub>Model outputs for the first three subcomponent models, including a. predicted street tree abundance, b. predicted newly invaded sites of existing IAFIs, c. predicted street tree exposure levels (number of focal host tree + IAFI interactions) from 2020 to 2050, and finally d. Predicted total tree mortality from 2020 to 2050 in the most likely mortality debt scenario across space. The top seven most impacted cities or groups of nearby cities are shown in terms of total tree mortality 2020 to 2050 (A = Milwaukee, WI; B = Chicago/Aurora/Naperville/Arlington Heights, IL; C = New York, NY; D = Seattle, WA; E = Indianapolis, IN; F = Cleveland, OH; G = Philadelphia, PA)  </sub>
 
 
 ---
