@@ -50,7 +50,7 @@ Reproduce results by loading R project (*UStreedamage.Rproj*) and running script
 3. '030_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041).  
 4. 	a. '040_model_synthesis.R' - synthesizes four model predictions into tree mortality and cost estimates by community  
 	b. '041_eachcommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario  
-	c. '042_plotting.R' - reproduces important plots from the manuscript  
+	c. '042_plotting.R', '043_more_plotting.R' - reproduces important plots from the manuscript  
 
 ### Derived data  
 
