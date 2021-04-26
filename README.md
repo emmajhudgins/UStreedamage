@@ -15,11 +15,11 @@ In this paper, we estimate the number of additional urban trees expected to die 
 
 Urban trees are expected to be the target of the greatest economic impacts of forest pests, but previous impact estimates were at the country-level, and therefore lacked the necessary pest, tree, and spatiotemporal resolution to allow targeted management. In this study, we synthesized urban tree distributional models across 30,000 US communities with spread predictions for 57 pest species and host-specific estimates of tree death due to pest exposure.   
 
-We estimate that an additional 1.5 million street trees will be killed by insects from 2020 through 2050, costing an annualized average of US$ 32M. However, these estimates hide substantial variation: 23% of urban centers will experience 94% of all insect-induced mortality, and 85% of all mortality will be due to emerald ash borer (Agrilus planipennis, EAB). We define an EAB high-impact zone spanning 902,500km<sup>2</sup>, largely within the Midwest and Northeast, within which we predict the death of 98.8% of all ash trees.  
+We estimate that an additional 1.5 million street trees will be killed by insects from 2020 through 2050, costing an annualized average of US$ 32M. However, these estimates hide substantial variation: 23% of urban centers will experience 95% of all insect-induced mortality, and 90% of all mortality will be due to emerald ash borer (Agrilus planipennis, EAB). We define an EAB high-impact zone spanning 902,500km<sup>2</sup>, largely within the Midwest and Northeast, within which we predict the death of 98.8% of all ash trees.  
 
 “Mortality hotspot cities” facing costs of up to **13.0 million USD each** include **Milwaukee, WI, Indianapolis, IN, and Chicago, IL**.
 
-We identify Asian wood borers of maple and oak trees as the highest risk future US urban tree insect invaders, where a new establishment could cost up to **4.3B USD** in the same time frame.
+We identify Asian wood borers of maple and oak trees as the highest risk future US urban tree insect invaders, where a new establishment could cost up to **4.9B USD** in the same time frame.
 
 The predicted tree mortality/cost in each US community by tree genus is available in  "mortgrid.RDS/costgrid.RDS". For more finescale predictions, email emma.hudgins@mail.mcgill.ca  
 
