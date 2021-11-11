@@ -22,6 +22,9 @@ data2<-data2[-c(25,69),] # remove pests with no range in US forests
 data2<-data2[-4,]# remove pests with no range in US forests
 data<-read.csv('../data/countydatanorm_march.csv', stringsAsFactors = FALSE) # spatial data
 
+# 50x50km grid spatial information
+grid<-read.csv('../data/countydatanorm_march.csv')
+
 cumulative_presences<-readRDS('presences_time_noforce3.rds') # pest spread predictions following Hudgins et al. (2020)
 cumulative_presences[[1]]<-readRDS('presences_time_eab.rds')[[1]]# updated to include observed eab distributions to 2020
 cumulative_presences[[49]]<-readRDS('presences_time_hwa.rds')[[49]]#updated to include HWA historical spread
@@ -94,10 +97,10 @@ points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 image(1,1:40,t(1:40), col=pal(40), axes=FALSE)
 par(las=1)
-axis(4)
+axis(4, cex.axis=1.1)
 par(las=0)
 
-mtext(side=4, "New local establishments", line=3)
+mtext(side=4, "New local establishments", line=3, cex=1.25)
 
 exposure<-readRDS('spatial_exposure.RDS')
 
@@ -115,9 +118,29 @@ plot(transform_usa, lwd=0.2, main=NULL)
 points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 image(1,1:40,t(1:40), col=pal(40), axes=FALSE)
-axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,40,length.out=4)), cex.axis=1)
+axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,40,length.out=4)), cex.axis=1.1)
 par(las=0)
-mtext(side=4, "Street Tree Exposure (2020-2050)", line=3)
+mtext(side=4, "Street Tree Exposure (2020-2050)", line=3, cex=1.25)
+grid_small<-readRDS('grid_small.RDS')
+grid_med<-readRDS('grid_med.RDS')
+grid_large<-readRDS('grid_large.RDS')
+streettrees<-rowSums(grid_small)+rowSums(grid_med)+rowSums(grid_large)
+m<-SpatialPointsDataFrame(coords=cbind(data$X_coord, data$Y_coord), data=data.frame(X1=streettrees))
 
 
-mtext(side=4, "New local establishments", line=3)
+par(mar=c(0.5,0.5,0.5,0.5))
+par(oma=c(0,0,0,4))
+layout(t(1:2), widths=c(6,1))
+pal<-viridis
+bins<-seq(0,6.1,length.out=40)
+bins<-10^bins
+m$Col<-pal(40)[findInterval(m$X1, bins)+1]
+plot(transform_usa, lwd=0.2, main=NULL)
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+plot(transform_usa,add=TRUE, lwd=2)
+image(1,1:40,t(1:40), col=pal(40), axes=FALSE)
+axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,40,length.out=4)), cex.axis=1.1)
+par(las=0)
+mtext(side=4, "Predicted Street Trees", line=3, cex=1.25)
+
+

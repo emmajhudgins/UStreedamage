@@ -324,7 +324,7 @@ image(1,1:50,t(1:50), col=pal(50), axes=FALSE)
 par(las=1)
 axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,50,length.out=4)), cex.axis=1)
 par(las=0)
-mtext(side=4, "Street Tree Mortality (2020-2050)", line=3)
+mtext(side=4, "Street Tree Mortality (2020-2050)", line=3, cex=1.5)
 
 # see https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=53971 for state cods
 states<-m2@data%>%group_by(ST)%>%summarise_at('mort', sum)

@@ -45,12 +45,13 @@ Reproduce results by loading R project (*UStreedamage.Rproj*) and running script
 
 ### Scripts using public data  
 
-1. '010_beta_mortality_stan.R' - R script calling STAN model (./stan/beta_mort.stan) and saving output using latin hypercube sampling to show theoretical validity, and then fitting to pest severity data  
-2. '02x_forecasted_presences_x.R',- forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data (up to date for 2015, EAB up-to-date for 2020, data from USDA FS). '027_new_presences.R' combines all forecasts into one dataframe.
-3. '030_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041).  
-4. 	a. '040_model_synthesis.R' - synthesizes four model predictions into tree mortality and cost estimates by community  
-	b. '041_eachcommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario  
-	c. '042_plotting.R', '043_more_plotting.R' - reproduces important plots from the manuscript  
+1. a.'10_beta_mortality_stan.R' - R script calling STAN model (./stan/beta_mort.stan) and saving output using latin hypercube sampling to show theoretical validity, and then fitting to pest severity data  
+b. '11_severity_by_pest.R' - R script calculating the genus-level severity (in Potter et al. categories) based on mean country-level species breakdowns of trees within each genus (see '1101_severity_by_pest_interpolate.R' for a sensitivity analysis of this approach compared to using nearest-neighbour species-level breakdown of trees within each genus based on the cities where species-level distributional data were provided)
+2. '2x_forecasted_presences_x.R',- forecasts pest spread based on Hudgins et al. 2017;2020 for pests present for more and less than to years with only a single occurrence timepoint (see Hudgins et al. 2020), as well as for 4 pest species with historical spread data (up to date for 2015, EAB up-to-date for 2020, data from USDA FS). '027_new_presences.R' combines all forecasts into one dataframe.
+3. '30_tree_grid_public.R' - uses models produced in private folder to calculate trees in each grid cell in order to get matched to pest spread forecasts (which get converted back to community-level data in script 041).  
+4. 	a. '40_model_synthesis.R' - synthesizes four model predictions into tree mortality and cost estimates by community  
+	b. '41_bycommunity.R' - extracts tree mortality and cost incurred by each US community in the most likely scenario  
+	c. '42_plotting.R', '43_more_plotting.R' - reproduces important plots from the manuscript  
 
 ### Derived data  
 
