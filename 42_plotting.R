@@ -290,7 +290,7 @@ shadowtext <- function(x, y=NULL, labels, col='white', bg='black',
   # draw actual text in exact xy position in foreground colour
   text(xy$x, xy$y, labels, col=col, ... )
 }
-m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus)),"cost")) #grid cell level mortality
+m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus[,39:57,])),"cost")) #grid cell level mortality
 m2<-SpatialPointsDataFrame(coords=cbind(spp_agg_city$lon, spp_agg_city$lat), data=spp_agg_city)# city-level mortality
 proj4string(m2)<-CRS("+proj=longlat +datum=WGS84")
 m2<-spTransform(m2, CRS("+proj=eqdc +lat_0=39 +lon_0=-96 +lat_1=33 +lat_2=45 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
@@ -348,6 +348,76 @@ pal<-viridis
 points(cbind(grid$X_coord[unique(c(new_presences[[pest]][,(ncol(new_presences[[pest]])-10+4):(ncol(new_presences[[pest]])-((lag2-5)/5))]))], grid$Y_coord[unique(c(new_presences[[pest]][,(ncol(new_presences[[pest]])-10+4):(ncol(new_presences[[pest]])-((lag2-5)/5))]))]), pch=15, cex=0.5, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 
+image(1,1:50,t(1:50), col=pal(50), axes=FALSE)
+par(las=1)
+axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,50,length.out=4)), cex.axis=1)
+par(las=0)
+mtext(side=4, "Street Tree Mortality (2020-2050)", line=3)
+
+
+m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus[,39:57,])),"cost")) #grid cell level mortality
+m2<-SpatialPointsDataFrame(coords=cbind(spp_agg_city$lon, spp_agg_city$lat), data=spp_agg_city)# city-level mortality
+proj4string(m2)<-CRS("+proj=longlat +datum=WGS84")
+m2<-spTransform(m2, CRS("+proj=eqdc +lat_0=39 +lon_0=-96 +lat_1=33 +lat_2=45 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+# # Create two panels side by side
+par(mar=c(0.5,0.5,0.5,0.5))
+par(oma=c(0,0,0,4))
+layout(t(1:2), widths=c(6,1))
+bins<-seq(0,6,length.out=50)
+bins<-10^bins
+m$Col<-pal(50)[findInterval(m$cost, bins)+1]
+plot(transform_usa, lwd=0.2, main=NULL)
+pal<-viridis
+#m$Col <- pal(50)[as.numeric(cut(log10(m$cost+1),breaks = 50))]
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+plot(transform_usa,add=TRUE, lwd=2)
+image(1,1:50,t(1:50), col=pal(50), axes=FALSE)
+par(las=1)
+axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,50,length.out=4)), cex.axis=1)
+par(las=0)
+mtext(side=4, "Street Tree Mortality (2020-2050)", line=3)
+
+
+
+m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus[,26:38,])),"cost")) #grid cell level mortality
+m2<-SpatialPointsDataFrame(coords=cbind(spp_agg_city$lon, spp_agg_city$lat), data=spp_agg_city)# city-level mortality
+proj4string(m2)<-CRS("+proj=longlat +datum=WGS84")
+m2<-spTransform(m2, CRS("+proj=eqdc +lat_0=39 +lon_0=-96 +lat_1=33 +lat_2=45 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+# # Create two panels side by side
+par(mar=c(0.5,0.5,0.5,0.5))
+par(oma=c(0,0,0,4))
+layout(t(1:2), widths=c(6,1))
+bins<-seq(0,6,length.out=50)
+bins<-10^bins
+m$Col<-pal(50)[findInterval(m$cost, bins)+1]
+plot(transform_usa, lwd=0.2, main=NULL)
+pal<-viridis
+#m$Col <- pal(50)[as.numeric(cut(log10(m$cost+1),breaks = 50))]
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+plot(transform_usa,add=TRUE, lwd=2)
+image(1,1:50,t(1:50), col=pal(50), axes=FALSE)
+par(las=1)
+axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,50,length.out=4)), cex.axis=1)
+par(las=0)
+mtext(side=4, "Street Tree Mortality (2020-2050)", line=3)
+
+
+m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus[,1:25,])),"cost")) #grid cell level mortality
+m2<-SpatialPointsDataFrame(coords=cbind(spp_agg_city$lon, spp_agg_city$lat), data=spp_agg_city)# city-level mortality
+proj4string(m2)<-CRS("+proj=longlat +datum=WGS84")
+m2<-spTransform(m2, CRS("+proj=eqdc +lat_0=39 +lon_0=-96 +lat_1=33 +lat_2=45 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+# # Create two panels side by side
+par(mar=c(0.5,0.5,0.5,0.5))
+par(oma=c(0,0,0,4))
+layout(t(1:2), widths=c(6,1))
+bins<-seq(0,6,length.out=50)
+bins<-10^bins
+m$Col<-pal(50)[findInterval(m$cost, bins)+1]
+plot(transform_usa, lwd=0.2, main=NULL)
+pal<-viridis
+#m$Col <- pal(50)[as.numeric(cut(log10(m$cost+1),breaks = 50))]
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+plot(transform_usa,add=TRUE, lwd=2)
 image(1,1:50,t(1:50), col=pal(50), axes=FALSE)
 par(las=1)
 axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,50,length.out=4)), cex.axis=1)
