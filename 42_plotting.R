@@ -15,10 +15,6 @@ long_st<-readRDS('./output/costquantiles_long.RDS')[[1]]
 short_st<-readRDS('./output/costquantiles_short.RDS')[[1]]
 mid_st<-readRDS('./output/costquantiles_mid.RDS')[[1]]
 
-#average predictions
-bestguess_genus<-readRDS('./output/mean_mort.RDS')[,c(def,bore,suck),]
-new_presences<-readRDS('./output/new_presences.RDS')
-
 #trees
 pred_trees_huge<-readRDS('./output/pred_trees_huge_public.RDS') #private data removed
 #pred_trees_huge<-readRDS('~/Desktop/OneDrive - McGill University/Grad/scripts/pred_trees_huge.RDS') #private data
@@ -36,6 +32,9 @@ bore<-which(data2$Guild=="Borers")
 suck<-which(data2$Guild=="Suckers")
 def<-which(data2$Guild=="Defoliators")
 
+#average predictions
+bestguess_genus<-readRDS('./output/mean_mort.RDS')[,c(def,bore,suck),]
+new_presences<-readRDS('./output/new_presences.RDS')
 
 ##mean cost by guild across scenarios
 
@@ -67,9 +66,9 @@ data2$COMMON_NAM[which(data2$Guild=="Defoliators")][order(apply(long_st[,which(d
 ## plot best guess quantiles
 
 bestguess<-rowSums(readRDS('./output/costquantiles_bestguess.RDS')[[1]])*0.02/(1-(1+0.02)^-30)
-
+pdf('./output/Scenario_range.pdf')
 ggplot(data=data.frame(bestguess))+geom_density(aes(x=unlist(c(bestguess))), fill=viridis(1)[1])+theme_classic()+scale_x_continuous(name="Best Guess Scenario Annualized Street Tree Costs (2019 USD)",limits=c(2.5e+07,4e+07))+scale_y_continuous(name="Posterior Probability Density")+theme(axis.text=element_text(size=11))+geom_vline(xintercept=(quantile(bestguess, 0.025)), linetype="dotted", size=1.5, color="yellow")+ geom_vline(xintercept=(quantile(bestguess, 0.975)), linetype="dotted", size=1.5, color="yellow")+ geom_vline(xintercept=(mean(unlist(c(bestguess)))), linetype="dotted", size=1.5, color="red")
-
+dev.off()
 
 ###vary guilds across scenarios
 ##examine resupting costs
@@ -158,9 +157,9 @@ time_vl<-readRDS('./output/temporal_costs_long.RDS')
 data<-data.frame(cbind(time_vl, time_vm,  time_vs))
 
 pal<-viridis
-
+pdf("./output/Mortality_debt.pdf")
 ggplot(data)+geom_col(aes(x=1:7, y=time_vs, fill="10 Year"), width=0.5,)+geom_col(aes(x=1.1:7.1, y=time_vm ,fill="50 Year"),width=0.4,position=position_dodge(0.3))+geom_col(aes(x=1.2:7.2, y=time_vl, fill="100 Year"), width=0.5, position=position_dodge(0.5))+scale_x_continuous(name="Time", breaks=c(1,3,5,7), labels=c(2020,2030,2040,2050))+scale_y_continuous(name="Cost (2019 USD)")+theme_classic()+theme(axis.text=element_text(size=16), axis.title = element_text(size=18), legend.text = element_text(size=16), legend.title = element_text(size=18))+scale_fill_manual(values=c("100 Year"=alpha(pal(3)[1],0.75),"50 Year"=alpha(pal(3)[2],0.75), "10 Year"=alpha(pal(3)[3],0.75)), name="Mortality Debt", breaks=c("10 Year", "50 Year", "100 Year"))+geom_path(aes(x=1:7, y=bestguess), colour='darkred', size=1,linetype="dashed")
-
+dev.off()
 
 ##newpest
 
@@ -290,10 +289,12 @@ shadowtext <- function(x, y=NULL, labels, col='white', bg='black',
   # draw actual text in exact xy position in foreground colour
   text(xy$x, xy$y, labels, col=col, ... )
 }
-m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus[,39:57,])),"cost")) #grid cell level mortality
+m<-SpatialPointsDataFrame(coords=cbind(grid$X_coord, grid$Y_coord), data=setNames(as.data.frame(rowSums(bestguess_genus)),"cost")) #grid cell level mortality
 m2<-SpatialPointsDataFrame(coords=cbind(spp_agg_city$lon, spp_agg_city$lat), data=spp_agg_city)# city-level mortality
 proj4string(m2)<-CRS("+proj=longlat +datum=WGS84")
 m2<-spTransform(m2, CRS("+proj=eqdc +lat_0=39 +lon_0=-96 +lat_1=33 +lat_2=45 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+
+pdf('./output/hotspots.pdf')
 # # Create two panels side by side
 par(mar=c(0.5,0.5,0.5,0.5))
 par(oma=c(0,0,0,4))
@@ -304,7 +305,7 @@ m$Col<-pal(50)[findInterval(m$cost, bins)+1]
 plot(transform_usa, lwd=0.2, main=NULL)
 pal<-viridis
 #m$Col <- pal(50)[as.numeric(cut(log10(m$cost+1),breaks = 50))]
-points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=1, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 points(m2@coords[order(m2$mort, decreasing=T)[c(1:3,7:10)],1:2], cex=1, col='black', bg=viridis(50)[50], pch=21)
 shadowtext(m2@coords[order(m2$mort, decreasing=T)[c(1:3,7:10)],1:2], labels=c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J" )[c(1:7)],pos=4, offset=0.25, cex=1 , col=viridis(50)[50])
@@ -325,8 +326,8 @@ par(las=1)
 axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,50,length.out=4)), cex.axis=1)
 par(las=0)
 mtext(side=4, "Street Tree Mortality (2020-2050)", line=3, cex=1.5)
-
-# see https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=53971 for state cods
+dev.off()
+# see https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=53971 for state codes
 states<-m2@data%>%group_by(ST)%>%summarise_at('mort', sum)
 
 ##EAB-asymptotic mortality zone

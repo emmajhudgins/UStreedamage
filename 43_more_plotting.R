@@ -71,21 +71,21 @@ for (i in 1:72)
 my_palette <- colorRampPalette(c("yellow1", "violetred2", "mediumblue"))(23)
 m<-SpatialPointsDataFrame(coords=cbind(data$X_coord, data$Y_coord), data=data.frame(X1=Pfull_all[,10]))
 ##maple tree results
-
+pdf('IAFI_load.pdf')
 spplot(m, "X1",cex=0.85,main="2050", cuts=seq(0, 57, length.out=16),sp.layout=list(transform_usa, lwd=3, first=F), col.regions=my_palette, auto.key=FALSE, colorkey=TRUE,par.settings=list(
   layout.widths=list(left.padding=0, right.padding=7), 
   layout.heights=list(top.padding=0, bottom.padding=0)))
 grid.text("IAFI load", x=unit(0.95, "npc"), y=unit(0.50, "npc"), rot=-90, gp=gpar(fontsize=20))
-
-
+dev.off()
 
 m<-SpatialPointsDataFrame(coords=cbind(data$X_coord, data$Y_coord), data=data.frame(X1=Pfull_all[,10]-Pfull_all[,1]))
-
 spplot(m, "X1",cex=0.85,main="2050", cuts=seq(0, 31, length.out=16),sp.layout=list(transform_usa, lwd=3, first=F), col.regions=viridis(16), auto.key=FALSE, colorkey=TRUE,par.settings=list(
   layout.widths=list(left.padding=0, right.padding=7), 
   layout.heights=list(top.padding=0, bottom.padding=0)))
 grid.text("New local establishments", x=unit(0.95, "npc"), y=unit(0.50, "npc"), rot=-90, gp=gpar(fontsize=20))
 
+
+pdf("New_local_establishments.pdf")
 par(mar=c(0.5,0.5,0.5,0.5))
 par(oma=c(0,0,0,4))
 layout(t(1:2), widths=c(6,1))
@@ -93,20 +93,20 @@ pal<-viridis
 bins<-seq(0,40,length.out=40)
 m$Col<-pal(40)[findInterval(m$X1, bins)+1]
 plot(transform_usa, lwd=0.2, main=NULL)
-points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=1, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 image(1,1:40,t(1:40), col=pal(40), axes=FALSE)
 par(las=1)
 axis(4, cex.axis=1.1)
 par(las=0)
-
 mtext(side=4, "New local establishments", line=3, cex=1.25)
+dev.off()
 
 exposure<-readRDS('spatial_exposure.RDS')
 
 m<-SpatialPointsDataFrame(coords=cbind(data$X_coord, data$Y_coord), data=data.frame(X1=exposure))
 
-
+pdf('Street_tree_exposure.pdf')
 par(mar=c(0.5,0.5,0.5,0.5))
 par(oma=c(0,0,0,4))
 layout(t(1:2), widths=c(6,1))
@@ -115,19 +115,21 @@ bins<-seq(0,6.1,length.out=40)
 bins<-10^bins
 m$Col<-pal(40)[findInterval(m$X1, bins)+1]
 plot(transform_usa, lwd=0.2, main=NULL)
-points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=1, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 image(1,1:40,t(1:40), col=pal(40), axes=FALSE)
 axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,40,length.out=4)), cex.axis=1.1)
 par(las=0)
 mtext(side=4, "Street Tree Exposure (2020-2050)", line=3, cex=1.25)
+dev.off()
+
 grid_small<-readRDS('grid_small.RDS')
 grid_med<-readRDS('grid_med.RDS')
 grid_large<-readRDS('grid_large.RDS')
 streettrees<-rowSums(grid_small)+rowSums(grid_med)+rowSums(grid_large)
 m<-SpatialPointsDataFrame(coords=cbind(data$X_coord, data$Y_coord), data=data.frame(X1=streettrees))
 
-
+pdf('Pred_street_trees.pdf')
 par(mar=c(0.5,0.5,0.5,0.5))
 par(oma=c(0,0,0,4))
 layout(t(1:2), widths=c(6,1))
@@ -136,11 +138,10 @@ bins<-seq(0,6.1,length.out=40)
 bins<-10^bins
 m$Col<-pal(40)[findInterval(m$X1, bins)+1]
 plot(transform_usa, lwd=0.2, main=NULL)
-points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=0.5, col=m$Col)
+points(cbind(grid$X_coord, grid$Y_coord), pch=15, cex=1, col=m$Col)
 plot(transform_usa,add=TRUE, lwd=2)
 image(1,1:40,t(1:40), col=pal(40), axes=FALSE)
 axis(4,labels=c("0",expression(10^{2}), expression(10^{4}),expression(10^{6})),at=c(seq(1,40,length.out=4)), cex.axis=1.1)
 par(las=0)
 mtext(side=4, "Predicted Street Trees", line=3, cex=1.25)
-
-
+dev.off()
